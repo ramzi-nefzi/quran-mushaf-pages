@@ -1,0 +1,44 @@
+name: Import Quran Pages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Hafs Pages
+        run: |
+          git clone --depth 1 https://github.com/GovarJabbar/Quran-PNG.git temp_hafs
+          mkdir -p hafs
+          cp temp_hafs/*.png hafs/
+          rm -rf temp_hafs
+
+      - name: Download Warsh, Hafs Wasat, Tajweed
+        run: |
+          git clone --depth 1 https://github.com/QuranHub/quran-pages-images.git temp_qh
+          mkdir -p warsh hafs_wasat tajweed
+          cp temp_qh/kfgqpc/warsh/*.jpg warsh/
+          cp temp_qh/kfgqpc/hafs-wasat/*.jpg hafs_wasat/
+          cp temp_qh/easyquran.com/hafs-tajweed/*.jpg tajweed/
+          rm -rf temp_qh
+
+      - name: Download Qaloon Pages
+        run: |
+          git clone --depth 1 https://github.com/Zohanur2026/zohanur-mushaf-pages-qaloon.git temp_qaloon
+          mkdir -p qaloon
+          cp temp_qaloon/*.jpg qaloon/
+          rm -rf temp_qaloon
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Import all Quran mushaf editions and pages" || echo "No changes"
+          git push
